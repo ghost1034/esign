@@ -1,6 +1,7 @@
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
+COPY scripts/sync-pdf-worker.mjs ./scripts/sync-pdf-worker.mjs
 RUN npm ci
 COPY . .
 ARG NEXT_PUBLIC_FIREBASE_API_KEY

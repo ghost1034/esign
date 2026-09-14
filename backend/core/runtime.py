@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -59,6 +60,20 @@ def frontend_base_url() -> str:
     if configured:
         return configured.rstrip("/")
     return "http://localhost:3100" if is_local() else require_cloud_value("APP_BASE_URL")
+
+
+def frontend_origins() -> list[str]:
+    """Allow equivalent loopback hosts for the local frontend's direct uploads/downloads."""
+    base = frontend_base_url()
+    parsed = urlsplit(base)
+    origins = [base]
+    if is_local() and parsed.hostname in {"localhost", "127.0.0.1", "::1"}:
+        port = f":{parsed.port}" if parsed.port else ""
+        for host in ("localhost", "127.0.0.1", "[::1]"):
+            origin = urlunsplit((parsed.scheme, host + port, "", "", ""))
+            if origin not in origins:
+                origins.append(origin)
+    return origins
 
 
 def public_api_base_url() -> str:

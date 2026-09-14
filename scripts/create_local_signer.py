@@ -5,8 +5,11 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import NameOID
-root = Path(__file__).resolve().parents[1] / '.local'
-root.mkdir(exist_ok=True)
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parents[1] / '.local')
+root = parser.parse_args().output_dir
+root.mkdir(parents=True, exist_ok=True)
 key_path, cert_path = root/'signing-key.pem', root/'signing-cert.pem'
 if not key_path.exists() or not cert_path.exists():
     key = ec.generate_private_key(ec.SECP256R1())

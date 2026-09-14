@@ -1032,7 +1032,7 @@ class EsignSigningService:
         marks: Optional[EsignMarkBundle] = None,
         recipient_id: Optional[str] = None,
     ) -> int:
-        """Persist text/checkbox drafts so the signer can leave and resume.
+        """Persist field drafts and mark selections so the signer can resume.
 
         Drafts are working state, not evidence: no audit event is written, and
         submit clears them when the final values land.
@@ -1060,6 +1060,9 @@ class EsignSigningService:
                 if str(field.recipient_id) != str(recipient.id):
                     continue
                 editable = field.field_type in (
+                    EsignFieldType.SIGNATURE,
+                    EsignFieldType.INITIALS,
+                    EsignFieldType.STAMP,
                     EsignFieldType.TEXT,
                     EsignFieldType.DATE,
                     EsignFieldType.NUMBER,
@@ -1078,7 +1081,10 @@ class EsignSigningService:
                 if str(field.id) not in values_by_field:
                     continue
                 provided = values_by_field[str(field.id)]
-                if field.field_type in (EsignFieldType.CHECKBOX, EsignFieldType.RADIO):
+                if field.field_type in (
+                    EsignFieldType.CHECKBOX, EsignFieldType.RADIO,
+                    EsignFieldType.SIGNATURE, EsignFieldType.INITIALS, EsignFieldType.STAMP,
+                ):
                     field.draft_value = "true" if str(provided).lower() in ("true", "1", "yes", "on") else "false"
                 elif field.field_type == EsignFieldType.DROPDOWN:
                     options = {str(option.get("value")) for option in (field.properties or {}).get("options", [])}

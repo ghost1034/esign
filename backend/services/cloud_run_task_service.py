@@ -14,7 +14,8 @@ class CloudRunTaskService:
             async def send():
                 await asyncio.sleep(delay_seconds)
                 async with httpx.AsyncClient(timeout=1800) as client:
-                    response = await client.post("http://127.0.0.1:8101/tasks/" + kind, json=payload)
+                    worker = os.getenv("LOCAL_WORKER_BASE_URL", "http://127.0.0.1:8101").rstrip("/")
+                    response = await client.post(worker + "/tasks/" + kind, json=payload)
                     response.raise_for_status()
             task = asyncio.create_task(send())
             self._local_tasks.add(task)

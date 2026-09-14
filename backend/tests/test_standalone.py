@@ -110,3 +110,21 @@ def test_guest_cookie_is_scoped_to_the_actual_guest_api():
     cookie=response.headers['set-cookie']
     assert 'Path=/api/esign/guest/sessions/session' in cookie
     assert 'HttpOnly' in cookie and 'SameSite=strict' in cookie
+
+
+def test_local_storage_cors_accepts_frontend_loopback_aliases_only():
+    from core.runtime import frontend_origins
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+    with patch.dict(os.environ, {'ENVIRONMENT': 'local', 'APP_BASE_URL': 'http://localhost:3100'}):
+        cors_app = FastAPI()
+        cors_app.add_middleware(CORSMiddleware, allow_origins=frontend_origins(), allow_methods=['*'], allow_headers=['*'])
+    with TestClient(cors_app) as c:
+        for origin in ('http://localhost:3100', 'http://127.0.0.1:3100', 'http://[::1]:3100'):
+            response = c.options('/api/local-storage/upload/example', headers={'Origin': origin, 'Access-Control-Request-Method': 'PUT'})
+            assert response.status_code == 200
+            assert response.headers['access-control-allow-origin'] == origin
+        for origin in ('http://127.0.0.1:9999', 'https://unrelated.example'):
+            assert c.options('/', headers={'Origin': origin, 'Access-Control-Request-Method': 'PUT'}).status_code == 400
+    with patch.dict(os.environ, {'ENVIRONMENT': 'production', 'APP_BASE_URL': 'https://esign.example'}):
+        assert frontend_origins() == ['https://esign.example']

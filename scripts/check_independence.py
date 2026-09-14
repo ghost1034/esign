@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 root = Path(__file__).resolve().parents[1]
 patterns = [r'cpaautomation', r'bytereview', r'CPAA_', r'X-CPAA-', r'services\.analytics', r'@/.*(?:analytics|firmcrm|billing)', r'/api/(?:analytics|stripe|billing|sign/|guest/)', r'/dashboard', r'(?:file:|link:).*\.\./', r'/Users/[^/]+/projects/']
-exclude = {'.git', '.next', '.venv', 'node_modules', '__pycache__', '.local', '.pytest_cache', 'test-results', 'playwright-report'}
+exclude = {'.git', '.next', '.next-test', '.venv', 'node_modules', '__pycache__', '.local', '.pytest_cache', 'test-results', 'playwright-report'}
 failures = []
 for p in root.rglob('*'):
     if any(part in exclude for part in p.relative_to(root).parts): continue

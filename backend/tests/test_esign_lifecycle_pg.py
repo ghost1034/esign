@@ -781,13 +781,17 @@ class EsignLifecyclePgTests(unittest.TestCase):
         text_field = next(f for f in session.fields if f.field_type == "text")
 
         # Save progress, then reopen: the draft value comes back.
+        signature_field = next(f for f in session.fields if f.field_type == "signature")
         saved = self.signing_service.save_progress(
                     expected_routing_version=self._routing_version(envelope_id),
             user_id=self.signer1_uid, user_email=self.signer1_email,
             envelope_id=envelope_id,
-            field_values=[EsignFieldValueInput(field_id=text_field.id, value="Acme LLC")],
+            field_values=[
+                EsignFieldValueInput(field_id=text_field.id, value="Acme LLC"),
+                EsignFieldValueInput(field_id=signature_field.id, value="true"),
+            ],
         )
-        self.assertEqual(saved, 1)
+        self.assertEqual(saved, 2)
         session = self._run(
             self.signing_service.get_signing_session(
                 user_id=self.signer1_uid, user_email=self.signer1_email,
@@ -797,6 +801,9 @@ class EsignLifecyclePgTests(unittest.TestCase):
         text_field = next(f for f in session.fields if f.field_type == "text")
         self.assertEqual(text_field.draft_value, "Acme LLC")
         self.assertIsNone(text_field.value)
+        signature_field = next(f for f in session.fields if f.field_type == "signature")
+        self.assertEqual(signature_field.draft_value, "true")
+        self.assertIsNone(signature_field.value)
 
         # A non-recipient can't save progress on this envelope.
         from services.esign.envelope_service import EsignNotFound

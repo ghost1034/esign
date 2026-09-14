@@ -40,12 +40,17 @@ npm run type-check
 npm run test:unit
 npm run test:backend
 npm run test:browser
+npm run test:e2e
 npm run check:openapi
 npm run check:independence
 npm run build
 ```
 
 Backend tests require the local PostgreSQL service. Their runner creates and drops a dedicated disposable database, applies the real baseline, and runs the PostgreSQL lifecycle and placement suites without skipping them. Browser tests launch the frontend and use controlled API responses to test UI contracts; they do not assert live Firebase/GCP behavior. Real signing/sealing/evidence semantics run in the backend PostgreSQL suite. Install the browser once with `npx playwright install chromium`.
+
+`npm run test:e2e` requires PostgreSQL, Mailpit, and LibreOffice (`docker compose up -d --wait` starts the first two). It starts isolated API and worker processes on ports 8102/8103 and a guest frontend on 3102, creates a disposable database, storage directory, signing key, and synthetic PDF/Word documents, then tests real uploads, conversion, draft conflicts, guest consent/CSRF, saved progress, signing, email delivery, sealing, both downloads, audit events, and tamper verification. API responses are not mocked. Test mail stays in local Mailpit; the database and temporary files are removed afterward. Live Firebase authentication and Vertex AI require independent cloud configuration and are not exercised by this local suite.
+
+Browser contract tests use port 3101. Both browser suites use `.next-test/` and should run sequentially; they never reuse the development server. The PDF.js worker is synchronized from the installed dependency during installation, development startup, and production builds.
 
 `npm run generate-types` updates `backend/openapi.json` and `lib/api-types.ts`. CI checks both for drift. The independence check rejects external platform imports, URLs, branding, sibling-directory dependencies, and symlinks.
 

@@ -59,7 +59,7 @@ test('authenticated signing rejects an inaccessible envelope through the correct
 test('completed guest copy downloads its PDF using a standalone secure URL', async ({ page }) => {
   const session = { envelope_id: 'envelope', recipient_id: 'recipient', title: 'Example agreement', sender_email: 'sender@example.com', envelope_status: 'completed', recipient_status: 'signed', recipient_role: 'signer', routing_version: 1, is_my_turn: false, consent_required: false, consent_disclosure_text: 'Test', documents: [], fields: [], context_fields: [], attachments: [], available_actions: [], access_purpose: 'completed_copy', has_sealed_document: true, has_certificate: true }
   await page.route('**/api/esign/guest/sessions/test-session', route => route.fulfill({ json: session }))
-  await page.route('**/api/esign/guest/sessions/test-session/completed/sealed', route => route.fulfill({ json: { url: 'http://127.0.0.1:3100/test-download.pdf' } }))
+  await page.route('**/api/esign/guest/sessions/test-session/completed/sealed', route => route.fulfill({ json: { url: 'http://127.0.0.1:3101/test-download.pdf' } }))
   await page.route('**/test-download.pdf', route => route.fulfill({ contentType: 'application/pdf', headers: { 'Content-Disposition': 'attachment; filename="agreement.pdf"' }, body: '%PDF-1.4\n%%EOF' }))
   await page.goto('/guest?session=test-session&continue=guest')
   await expect(page.getByRole('heading', { name: 'Completed: Example agreement' })).toBeVisible()

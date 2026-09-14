@@ -3,6 +3,7 @@
 .gitignore
 node_modules
 .next
+.next-test
 .local
 .env
 .env.local

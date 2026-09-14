@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from core.runtime import is_local, require_cloud_value, frontend_base_url
+from core.runtime import is_local, require_cloud_value, frontend_origins
 
 @asynccontextmanager
 async def lifespan(app):
@@ -17,7 +17,7 @@ async def lifespan(app):
     yield
 
 app = FastAPI(title="esign API", version="1.0.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=[frontend_base_url()], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=frontend_origins(), allow_methods=["*"], allow_headers=["*"])
 from routes import esign, team, local_storage
 app.include_router(esign.router, prefix="/api/esign", tags=["esign"])
 app.include_router(team.router)
