@@ -1,0 +1,2 @@
+# esign
+Independent Next.js / FastAPI electronic-signature app. Keep route handlers thin and domain behavior in backend/services/esign. Use strict TypeScript and semantic design tokens. Preserve audit immutability and signing concurrency protections. Run lint, type-check, build, unit tests, PostgreSQL tests, OpenAPI and independence checks. Never add platform endpoints, shared credentials, unrelated products, or production data. Regenerate API types after backend contract changes.
