@@ -8,7 +8,7 @@ failures = []
 for p in root.rglob('*'):
     if any(part in exclude for part in p.relative_to(root).parts): continue
     if p.is_symlink(): failures.append(f'{p.relative_to(root)}: symlinks are not allowed'); continue
-    if p.suffix not in {'.ts', '.tsx', '.js', '.mjs', '.py', '.json', '.sh', '.yml', '.yaml', '.md', '.toml', '.txt'} or p == Path(__file__): continue
+    if p.suffix not in {'.ts', '.tsx', '.js', '.mjs', '.py', '.json', '.sh', '.yml', '.yaml', '.md', '.toml', '.txt'} or p.resolve() == Path(__file__).resolve(): continue
     for number, line in enumerate(p.read_text().splitlines(), 1):
         if any(re.search(pattern, line, re.I) for pattern in patterns): failures.append(f'{p.relative_to(root)}:{number}')
 if failures: raise SystemExit('Independence violations:\n' + '\n'.join(failures))
